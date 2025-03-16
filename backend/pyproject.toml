@@ -1,0 +1,22 @@
+[project]
+name = "langgraph-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langgraph>=0.2.6",
+    "langchain-openai>=0.1.22",
+    "langchain-anthropic>=0.1.23",
+    "langchain>=0.2.14",
+    "langchain-fireworks>=0.1.7",
+    "python-dotenv>=1.0.1",
+    "langchain-community>=0.2.17",
+    "tavily-python>=0.4.0",
+    "langchain-exa>=0.2.1",
+    "googlemaps>=4.10.0",
+    "langchain-core>=0.3.45",
+    "langserve>=0.3.1",
+    "fastapi[standard]>=0.115.11",
+    "langgraph-cli[inmem]>=0.1.77",
+]
