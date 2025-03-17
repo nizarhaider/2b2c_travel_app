@@ -8,6 +8,7 @@ from typing import Annotated, Optional
 from langchain_core.runnables import RunnableConfig, ensure_config
 
 GPLACES_API_KEY = os.getenv("GPLACES_API_KEY")
+UNSPLASH_API_KEY = os.getenv("UNSPLASH_API_KEY")
 RAPID_API_JEY = os.getenv("RAPID_API_JEY")
 
 
@@ -28,7 +29,9 @@ class Configuration:
     booking_api_key: str = field(
         default=RAPID_API_JEY
     )
-
+    unsplash_api_key: str = field(
+        default=UNSPLASH_API_KEY
+    )
     max_search_results: int = field(
         default=5,
         metadata={

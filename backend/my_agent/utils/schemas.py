@@ -190,3 +190,4 @@ USER_SCHEMA = {
   },
   "required": ["number_of_people", "budget", "number_of_days", "destination"]
 }
+

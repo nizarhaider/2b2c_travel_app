@@ -23,6 +23,80 @@ from my_agent.utils.configuration import Configuration
 # exa = Exa(api_key=os.environ["EXA_API_KEY"])
 client = AsyncTavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
+async def search_unsplash_photos(
+        query: str,
+        per_page: int,
+        config: Annotated[RunnableConfig, InjectedToolArg]
+) -> dict:
+    """
+    Searches for photos on Unsplash based on the provided query.
+
+    This function interacts with the Unsplash API to search for photos matching the query string.
+    It returns a collection of photo results with metadata.
+
+    Keep your searches SHORT AND MINIMAL
+    
+    Parameters:
+    - query (str): The search terms to find photos.
+    - per_page (int) : Number of items in a page, ALWAYS LEAVE THE DEAFULTS to 10
+    - config (RunnableConfig): Configuration settings used to authenticate the API request. This 
+      includes the API key for the Unsplash API.
+
+    Returns:
+    - dict: The API response as a dictionary containing a list of photos with detailed information.
+      The data includes the photo ID, URLs, descriptions, user information, and additional metadata.
+      
+    Example:
+    >>> search_unsplash_photos(query="mountains", per_page=10)
+    {
+        "total": 3524,
+        "total_pages": 1762,
+        "results": [
+            {
+                "id": "eOLpJytrbsQ",
+                "created_at": "2014-11-18T14:35:36-05:00",
+                "width": 4000,
+                "height": 3000,
+                "description": "Mountain landscape",
+                "urls": {
+                    "raw": "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f",
+                    "full": "https://hd.unsplash.com/photo-1416339306562-f3d12fefd36f",
+                    "regular": "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max",
+                    "small": "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max",
+                    "thumb": "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max"
+                },
+                "user": {
+                    "id": "Ul0QVz12Goo",
+                    "username": "photographer",
+                    "name": "John Smith"
+                }
+            },
+            ...
+        ]
+    }
+
+    Notes:
+    - Returns the first page of results with default sorting.
+    - Be mindful of rate limits when making requests to the Unsplash API.
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
+        
+        # Build URL with query parameters
+        url = "https://api.unsplash.com/search/photos"
+        params = {
+            "query": query,
+            "orientation": "landscape",
+        }
+        
+        headers = {
+            "Authorization": f"Client-ID {configuration.unsplash_api_key}",
+            "Accept-Version": "v1"
+        }
+        
+        async with session.get(url, headers=headers, params=params) as response:
+            response.raise_for_status()
+            return await response.json()
 
 async def query_google_places(
         query: str,
@@ -310,4 +384,4 @@ async def tavily_web_search(
 #             response.raise_for_status()
 #             return await response.json()
 
-tools: List[Callable[..., Any]] = [tavily_web_search, query_google_places]
+tools: List[Callable[..., Any]] = [tavily_web_search, query_google_places, search_unsplash_photos]

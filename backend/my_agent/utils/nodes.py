@@ -3,7 +3,8 @@ from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 from my_agent.utils.tools import tools
 from langgraph.prebuilt import ToolNode
-
+from my_agent.utils.prompts import PLS_WORK_PROMPT
+import datetime 
 
 @lru_cache(maxsize=4)
 def _get_model(model_name: str):
@@ -29,7 +30,9 @@ def should_continue(state):
         return "continue"
 
 
-system_prompt = """Be a helpful assistant"""
+system_prompt = PLS_WORK_PROMPT.format(
+    TODAY=datetime.datetime.today().date()
+)
 
 # Define the function that calls the model
 def call_model(state, config):
