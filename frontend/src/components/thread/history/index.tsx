@@ -25,7 +25,7 @@ function ThreadList({
   const [threadId, setThreadId] = useQueryParam("threadId", StringParam);
 
   return (
-    <div className="h-full flex flex-col w-full gap-2 items-start justify-start overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
+    <div className="h-full flex flex-col w-full gap-0 items-start justify-start overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#D2691E] [&::-webkit-scrollbar-track]:bg-transparent">
       {threads.map((t) => {
         let itemText = t.thread_id;
         if (
@@ -39,10 +39,14 @@ function ThreadList({
           itemText = getContentString(firstMessage.content);
         }
         return (
-          <div key={t.thread_id} className="w-full px-1">
+          <div key={t.thread_id} className="w-full border-b border-[#D2691E]/20">
             <Button
               variant="ghost"
-              className="text-left items-start justify-start font-normal w-[280px]"
+              className={`text-left items-start justify-start font-normal w-[280px] transition-all duration-200 py-3 ${
+                t.thread_id === threadId 
+                ? "bg-[#006A4E]/10 text-[#006A4E] font-medium border-l-4 border-[#D2691E] pl-3" 
+                : "text-[#333] hover:bg-[#FFF5E1] hover:text-[#D2691E] hover:border-l-2 hover:border-[#006A4E] hover:pl-2"
+              }`}
               onClick={(e) => {
                 e.preventDefault();
                 onThreadClick?.(t.thread_id);
@@ -90,10 +94,10 @@ export default function ThreadHistory() {
 
   return (
     <>
-      <div className="hidden lg:flex flex-col border-r-[1px] border-slate-300 items-start justify-start gap-6 h-screen w-[300px] shrink-0 shadow-inner-right">
-        <div className="flex items-center justify-between w-full pt-1.5 px-4">
+      <div className="hidden lg:flex flex-col border-r-[1px] border-slate-300 items-start justify-start gap-6 h-screen w-[300px] shrink-0 shadow-inner-right thread-history-container">
+        <div className="flex items-center justify-between w-full pt-1.5 px-4 thread-history-header">
           <Button
-            className="hover:bg-gray-100"
+            className="hover:bg-[#D2691E]/20 text-[#006A4E] transition-colors duration-300"
             variant="ghost"
             onClick={() => setChatHistoryOpen((p) => !p)}
           >
@@ -103,7 +107,7 @@ export default function ThreadHistory() {
               <PanelRightClose className="size-5" />
             )}
           </Button>
-          <h1 className="text-xl font-semibold tracking-tight">
+          <h1 className="text-xl font-semibold tracking-tight text-[#006A4E] font-display">
             Thread History
           </h1>
         </div>
@@ -121,9 +125,9 @@ export default function ThreadHistory() {
             setChatHistoryOpen(open);
           }}
         >
-          <SheetContent side="left" className="lg:hidden flex">
+          <SheetContent side="left" className="lg:hidden flex bg-[#FFF5E1] border-r-4 border-[#D2691E]">
             <SheetHeader>
-              <SheetTitle>Thread History</SheetTitle>
+              <SheetTitle className="text-[#006A4E] font-display text-xl">Thread History</SheetTitle>
             </SheetHeader>
             <ThreadList
               threads={threads}

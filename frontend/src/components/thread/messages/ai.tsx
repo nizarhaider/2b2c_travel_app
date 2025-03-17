@@ -112,14 +112,16 @@ export function AssistantMessage({
   }
 
   return (
-    <div className="flex items-start mr-auto gap-2">
+    <div className="flex items-start mr-auto gap-2 max-w-[85%]">
       {isToolResult ? (
         <ToolResult message={message} />
       ) : (
         <div className="flex flex-col gap-2">
           {contentString.length > 0 && (
-            <div className="py-1">
-              <MarkdownText>{contentString}</MarkdownText>
+            <div className="py-1 px-4 bg-[#006A4E] text-[#FFF5E1] rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-none border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
+              <div className="prose prose-invert max-w-none">
+                <MarkdownText>{contentString}</MarkdownText>
+              </div>
             </div>
           )}
 
@@ -158,6 +160,7 @@ export function AssistantMessage({
               handleRegenerate={() => handleRegenerate(parentCheckpoint)}
             />
           </div>
+          <div className="text-xs text-[#006A4E] font-bold ml-2">HIBOWAN</div>
         </div>
       )}
     </div>
@@ -167,10 +170,10 @@ export function AssistantMessage({
 export function AssistantMessageLoading() {
   return (
     <div className="flex items-start mr-auto gap-2">
-      <div className="flex items-center gap-1 rounded-2xl bg-muted px-4 py-2 h-8">
-        <div className="w-1.5 h-1.5 rounded-full bg-foreground/50 animate-[pulse_1.5s_ease-in-out_infinite]"></div>
-        <div className="w-1.5 h-1.5 rounded-full bg-foreground/50 animate-[pulse_1.5s_ease-in-out_0.5s_infinite]"></div>
-        <div className="w-1.5 h-1.5 rounded-full bg-foreground/50 animate-[pulse_1.5s_ease-in-out_1s_infinite]"></div>
+      <div className="flex items-center gap-1 rounded-lg bg-[#006A4E]/70 px-4 py-2 h-8 border-2 border-[#D2691E]">
+        <div className="w-1.5 h-1.5 rounded-full bg-[#FFF5E1] animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+        <div className="w-1.5 h-1.5 rounded-full bg-[#FFF5E1] animate-[pulse_1.5s_ease-in-out_0.5s_infinite]"></div>
+        <div className="w-1.5 h-1.5 rounded-full bg-[#FFF5E1] animate-[pulse_1.5s_ease-in-out_1s_infinite]"></div>
       </div>
     </div>
   );
