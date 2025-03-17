@@ -12,6 +12,9 @@ import { Fragment } from "react/jsx-runtime";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { BooleanParam, useQueryParam } from "use-query-params";
+// import { Button } from "@/components/ui/button";
+// import { RefreshCw } from "lucide-react";
+// import { LoaderCircle } from "lucide-react";
 
 function CustomComponent({   
   message,
@@ -77,7 +80,8 @@ export function AssistantMessage({
   const [hideToolCalls] = useQueryParam("hideToolCalls", BooleanParam);
 
   const thread = useStreamContext();
-  const response_metadata = message.response_metadata || {}; // Extract metadata from message
+  // Use type assertion to access response_metadata safely
+  const response_metadata = (message as any).response_metadata || {};
   
   // Example: Skip rendering if message is marked as hidden
   if (response_metadata.hide) {
@@ -108,7 +112,7 @@ export function AssistantMessage({
   }
 
   return (
-    <div className="flex items-start mr-auto gap-2 group">
+    <div className="flex items-start mr-auto gap-2">
       {isToolResult ? (
         <ToolResult message={message} />
       ) : (

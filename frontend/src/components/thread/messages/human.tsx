@@ -32,20 +32,20 @@ function EditableContent({
   );
 }
 
-export function HumanMessage({
-  message,
-  isLoading,
-}: {
+interface HumanMessageProps {
   message: Message;
-  isLoading: boolean;
-}) {
+  isLoading?: boolean;
+  className?: string;
+}
+
+export function HumanMessage(props: HumanMessageProps) {
   const thread = useStreamContext();
-  const meta = thread.getMessagesMetadata(message);
+  const meta = thread.getMessagesMetadata(props.message);
   const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
+  const contentString = getContentString(props.message.content);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState("");
-  const contentString = getContentString(message.content);
+  const [value, setValue] = useState(contentString);
 
   const handleSubmitEdit = () => {
     setIsEditing(false);
@@ -68,6 +68,24 @@ export function HumanMessage({
       },
     );
   };
+
+  if (!props.isLoading && props.className) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col gap-2 self-end max-w-[80%]",
+          props.className
+        )}
+      >
+        <div className="bg-[#006A4E] text-[#FFF5E1] p-4 rounded-tl-lg rounded-tr-lg rounded-bl-none rounded-br-lg border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
+          <div className="whitespace-pre-wrap font-medium">
+            {getContentString(props.message.content)}
+          </div>
+        </div>
+        <div className="text-xs text-[#006A4E] font-bold self-end mr-2">YOU</div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -100,10 +118,10 @@ export function HumanMessage({
             branch={meta?.branch}
             branchOptions={meta?.branchOptions}
             onSelect={(branch) => thread.setBranch(branch)}
-            isLoading={isLoading}
+            isLoading={!!props.isLoading}
           />
           <CommandBar
-            isLoading={isLoading}
+            isLoading={!!props.isLoading}
             content={contentString}
             isEditing={isEditing}
             setIsEditing={(c) => {

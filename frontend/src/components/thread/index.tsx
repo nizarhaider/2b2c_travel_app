@@ -12,7 +12,6 @@ import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
-import { LangGraphLogoSVG } from "../icons/langgraph";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   ArrowDown,
@@ -28,6 +27,24 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
+
+// Sri Lankan-inspired logo component
+function HiBowanLogo({ width = 32, height = 32, className }: {
+  width?: number;
+  height?: number;
+  className?: string;
+}) {
+  return (
+    <div className={cn("relative flex items-center justify-center", className)}>
+      <svg width={width} height={height} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="#D2691E" />
+        <path d="M8 8C12 12 20 12 24 8M8 24C12 20 20 20 24 24M16 8V24" stroke="#FFF5E1" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="16" cy="16" r="4" fill="#006A4E" stroke="#FFF5E1" strokeWidth="1" />
+      </svg>
+      <span className="ml-2 text-xl font-bold tracking-tight font-display text-primary">HiBowan</span>
+    </div>
+  );
+}
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -58,16 +75,17 @@ function ScrollToBottom(props: { className?: string }) {
   return (
     <Button
       variant="outline"
-      className={props.className}
+      className={cn("brutalist-button border-4 border-primary font-bold", props.className)}
       onClick={() => scrollToBottom()}
     >
-      <ArrowDown className="w-4 h-4" />
+      <ArrowDown className="w-4 h-4 mr-2" />
       <span>Scroll to bottom</span>
     </Button>
   );
 }
 
 export function Thread() {
+  // Existing state and hooks
   const [threadId, setThreadId] = useQueryParam("threadId", StringParam);
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryParam(
     "chatHistoryOpen",
@@ -80,6 +98,8 @@ export function Thread() {
   const [input, setInput] = useState("");
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+  // Add this new state to control welcome popup visibility
+  const [showWelcomePopup, setShowWelcomePopup] = useState(true);
 
   const stream = useStreamContext();
   const messages = stream.messages;
@@ -87,6 +107,7 @@ export function Thread() {
 
   const lastError = useRef<string | undefined>(undefined);
 
+  // Error handling
   useEffect(() => {
     if (!stream.error) {
       lastError.current = undefined;
@@ -95,11 +116,9 @@ export function Thread() {
     try {
       const message = (stream.error as any).message;
       if (!message || lastError.current === message) {
-        // Message has already been logged. do not modify ref, return early.
         return;
       }
 
-      // Message is defined, and it has not been logged yet. Save it, and send the error
       lastError.current = message;
       toast.error("An error occurred. Please try again.", {
         description: (
@@ -115,7 +134,7 @@ export function Thread() {
     }
   }, [stream.error]);
 
-  // TODO: this should be part of the useStream hook
+  // Message handling
   const prevMessageLength = useRef(0);
   useEffect(() => {
     if (
@@ -162,7 +181,6 @@ export function Thread() {
   const handleRegenerate = (
     parentCheckpoint: Checkpoint | null | undefined,
   ) => {
-    // Do this so the loading state is correct
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
     stream.submit(undefined, {
@@ -174,10 +192,11 @@ export function Thread() {
   const chatStarted = !!threadId || !!messages.length;
 
   return (
-    <div className="flex w-full h-screen overflow-hidden">
+    <div className="flex w-full h-screen overflow-hidden bg-[#FFF5E1] sri-lankan-pattern">
+      {/* Sidebar */}
       <div className="relative lg:flex hidden">
         <motion.div
-          className="absolute h-full border-r bg-white overflow-hidden z-20"
+          className="absolute h-full border-r-4 border-[#D2691E] bg-[#FFF5E1] overflow-hidden z-20"
           style={{ width: 300 }}
           animate={
             isLargeScreen
@@ -192,10 +211,15 @@ export function Thread() {
           }
         >
           <div className="relative h-full" style={{ width: 300 }}>
+            <div className="p-4 border-b-4 border-[#D2691E] flex items-center justify-center">
+              <h2 className="text-2xl font-bold font-display text-[#006A4E]">Chat History</h2>
+            </div>
             <ThreadHistory />
           </div>
         </motion.div>
       </div>
+
+      {/* Main content */}
       <motion.div
         className={cn(
           "flex-1 flex flex-col min-w-0 overflow-hidden relative",
@@ -216,11 +240,12 @@ export function Thread() {
             : { duration: 0 }
         }
       >
+        {/* Header for empty state */}
         {!chatStarted && (
           <div className="absolute top-0 left-0 w-full flex items-center justify-between gap-3 p-2 pl-4 z-10">
             {(!chatHistoryOpen || !isLargeScreen) && (
               <Button
-                className="hover:bg-gray-100"
+                className="hover:bg-[#D2691E]/20 border-2 border-[#D2691E] text-[#006A4E] font-bold"
                 variant="ghost"
                 onClick={() => setChatHistoryOpen((p) => !p)}
               >
@@ -233,13 +258,15 @@ export function Thread() {
             )}
           </div>
         )}
+
+        {/* Header for chat started */}
         {chatStarted && (
-          <div className="flex items-center justify-between gap-3 p-2 pl-4 z-10 relative">
+          <div className="flex items-center justify-between gap-3 p-2 pl-4 z-10 relative border-b-4 border-[#D2691E] bg-[#FFF5E1]">
             <div className="flex items-center justify-start gap-2 relative">
               <div className="absolute left-0 z-10">
                 {(!chatHistoryOpen || !isLargeScreen) && (
                   <Button
-                    className="hover:bg-gray-100"
+                    className="hover:bg-[#D2691E]/20 border-2 border-[#D2691E] text-[#006A4E] font-bold"
                     variant="ghost"
                     onClick={() => setChatHistoryOpen((p) => !p)}
                   >
@@ -263,16 +290,13 @@ export function Thread() {
                   damping: 30,
                 }}
               >
-                <LangGraphLogoSVG width={32} height={32} />
-                <span className="text-xl font-semibold tracking-tight">
-                  Agent Chat
-                </span>
+                <HiBowanLogo width={40} height={40} />
               </motion.button>
             </div>
 
             <TooltipIconButton
               size="lg"
-              className="p-4"
+              className="p-4 border-2 border-[#D2691E] text-[#006A4E] font-bold"
               tooltip="New thread"
               variant="ghost"
               onClick={() => setThreadId(null)}
@@ -280,18 +304,19 @@ export function Thread() {
               <SquarePen className="size-5" />
             </TooltipIconButton>
 
-            <div className="absolute inset-x-0 top-full h-5 bg-gradient-to-b from-background to-background/0" />
+            <div className="absolute inset-x-0 top-full h-5 bg-gradient-to-b from-[#FFF5E1] to-[#FFF5E1]/0" />
           </div>
         )}
 
+        {/* Chat content */}
         <StickToBottom className="relative flex-1 overflow-hidden">
           <StickyToBottomContent
             className={cn(
-              "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
+              "absolute inset-0 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar-thumb]:bg-[#D2691E] [&::-webkit-scrollbar-track]:bg-[#FFF5E1]",
               !chatStarted && "flex flex-col items-stretch mt-[25vh]",
               chatStarted && "grid grid-rows-[1fr_auto]",
             )}
-            contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full"
+            contentClassName="pt-8 pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full"
             content={
               <>
                 {messages
@@ -318,19 +343,19 @@ export function Thread() {
               </>
             }
             footer={
-              <div className="sticky flex flex-col items-center gap-8 bottom-0 px-4 bg-white">
+              <div className="sticky flex flex-col items-center gap-8 bottom-0 px-4 bg-[#FFF5E1]">
                 {!chatStarted && (
                   <div className="flex gap-3 items-center">
-                    <LangGraphLogoSVG className="flex-shrink-0 h-8" />
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                      Agent Chat
+                    <HiBowanLogo className="flex-shrink-0" width={48} height={48} />
+                    <h1 className="text-3xl font-bold font-display text-[#006A4E]">
+                      HiBowan Travel Assistant
                     </h1>
                   </div>
                 )}
 
                 <ScrollToBottom className="absolute bottom-full left-1/2 -translate-x-1/2 mb-4 animate-in fade-in-0 zoom-in-95" />
 
-                <div className="bg-muted rounded-2xl border shadow-xs mx-auto mb-8 w-full max-w-3xl relative z-10">
+                <div className="bg-[#FFF5E1] rounded-none border-4 border-[#D2691E] shadow-[8px_8px_0px_0px_#006A4E] mx-auto mb-8 w-full max-w-3xl relative z-10">
                   <form
                     onSubmit={handleSubmit}
                     className="grid grid-rows-[1fr_auto] gap-2 max-w-3xl mx-auto"
@@ -346,40 +371,36 @@ export function Thread() {
                           form?.requestSubmit();
                         }
                       }}
-                      placeholder="Type your message..."
-                      className="p-3.5 pb-0 border-none bg-transparent field-sizing-content shadow-none ring-0 outline-none focus:outline-none focus:ring-0 resize-none"
+                      placeholder="Ask about Sri Lankan destinations..."
+                      className="min-h-[60px] w-full resize-none bg-[#FFF5E1] p-3 text-[#333] font-medium focus:outline-none focus:ring-0 placeholder:text-[#006A4E]/50 font-sans"
                     />
-
-                    <div className="flex items-center justify-between p-2 pt-4">
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <Switch
-                            id="render-tool-calls"
-                            checked={hideToolCalls ?? false}
-                            onCheckedChange={setHideToolCalls}
-                          />
-                          <Label
-                            htmlFor="render-tool-calls"
-                            className="text-sm text-gray-600"
-                          >
-                            Hide Tool Calls
-                          </Label>
-                        </div>
-                      </div>
-                      {stream.isLoading ? (
-                        <Button key="stop" onClick={() => stream.stop()}>
-                          <LoaderCircle className="w-4 h-4 animate-spin" />
-                          Cancel
-                        </Button>
-                      ) : (
-                        <Button
-                          type="submit"
-                          className="transition-all shadow-md"
-                          disabled={isLoading || !input.trim()}
+                    <div className="flex items-center justify-between p-2 border-t-4 border-[#D2691E]">
+                      <div className="flex items-center gap-2">
+                        <Label
+                          htmlFor="hideToolCalls"
+                          className="text-[#006A4E] font-bold cursor-pointer"
                         >
-                          Send
-                        </Button>
-                      )}
+                          Hide tool calls
+                        </Label>
+                        <Switch
+                          id="hideToolCalls"
+                          checked={!!hideToolCalls}
+                          onCheckedChange={setHideToolCalls}
+                          className="data-[state=checked]:bg-[#006A4E] border-2 border-[#D2691E]"
+                        />
+                      </div>
+
+                      <Button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        className="bg-[#D2691E] hover:bg-[#D2691E]/90 text-[#FFF5E1] font-bold border-2 border-[#006A4E] px-6 py-2 text-lg shadow-[4px_4px_0px_0px_#006A4E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
+                      >
+                        {isLoading ? (
+                          <LoaderCircle className="size-5 animate-spin" />
+                        ) : (
+                          "Send"
+                        )}
+                      </Button>
                     </div>
                   </form>
                 </div>
@@ -387,6 +408,87 @@ export function Thread() {
             }
           />
         </StickToBottom>
+
+        {/* Welcome screen */}
+        {!chatStarted && showWelcomePopup && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-0">
+            <div className="max-w-2xl w-full bg-[#FFF5E1] border-4 border-[#D2691E] shadow-[12px_12px_0px_0px_#006A4E] p-8 mb-8 relative">
+              {/* Close button */}
+              <button 
+                onClick={() => setShowWelcomePopup(false)}
+                className="absolute top-4 right-4 text-[#006A4E] hover:text-[#D2691E] transition-colors w-8 h-8 rounded-full border-2 border-[#D2691E] flex items-center justify-center hover:bg-[#FFF5E1]/80 hover:border-[#006A4E] transition-all duration-200"
+                aria-label="Close welcome popup"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+              
+              <h1 className="text-4xl font-bold mb-6 text-[#D2691E] font-display text-center">
+                Welcome to HiBowan
+              </h1>
+              <p className="text-xl mb-6 text-[#333] font-medium">
+                Your Sri Lankan travel companion. Ask me about:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <Button 
+                  onClick={() => {
+                    setInput("Tell me about beautiful beaches and coastal areas in Sri Lanka");
+                    setShowWelcomePopup(false);
+                  }}
+                  className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
+                >
+                  🏝️ Beautiful beaches and coastal areas
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setInput("What are the must-visit cultural sites in Sri Lanka?");
+                    setShowWelcomePopup(false); // Add this line
+                    setTimeout(() => {
+                      const textarea = document.querySelector("textarea");
+                      if (textarea) textarea.focus();
+                    }, 100);
+                  }}
+                  className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
+                >
+                  🏛️ Cultural heritage sites and temples
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setInput("What's the best time to visit Sri Lanka?");
+                    setShowWelcomePopup(false); // Add this line
+                    setTimeout(() => {
+                      const textarea = document.querySelector("textarea");
+                      if (textarea) textarea.focus();
+                    }, 100);
+                  }}
+                  className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
+                >
+                  🌦️ Weather and best times to visit
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setInput("What are some traditional Sri Lankan dishes I should try?");
+                    setShowWelcomePopup(false); // Add this line
+                    setTimeout(() => {
+                      const textarea = document.querySelector("textarea");
+                      if (textarea) textarea.focus();
+                    }, 100);
+                  }}
+                  className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
+                >
+                  🍛 Local cuisine and culinary experiences
+                </Button>
+              </div>
+              <div className="border-t-4 border-[#D2691E] pt-4 mt-4">
+                <p className="text-center text-[#006A4E] font-medium">
+                  Type your question below or select a suggestion to get started
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );
