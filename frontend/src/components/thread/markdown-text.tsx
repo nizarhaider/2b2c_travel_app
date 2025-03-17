@@ -20,15 +20,75 @@ import { cn } from "@/lib/utils";
 
 import "katex/dist/katex.min.css";
 
-const MarkdownTextImpl = ({ children }: { children: string }) => {
+// import { Components } from "react-markdown";
+
+const MarkdownTextImpl = ({ children, className }: { children: string; className?: string }) => {
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
-      components={defaultComponents}
-    >
-      {children}
-    </ReactMarkdown>
+    <div className={cn("prose dark:prose-invert max-w-none", className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        components={{
+          code({ node, inline, className, children, ...props }: any) {
+            const match = /language-(\w+)/.exec(className || "");
+            return !inline && match ? (
+              <SyntaxHighlighter
+                language={match[1]}
+                PreTag="div"
+                {...props}
+                style={{}}
+              >
+                {String(children).replace(/\n$/, "")}
+              </SyntaxHighlighter>
+            ) : (
+              <code className={cn("bg-[#FFF5E1] text-[#006A4E] px-1 py-0.5 rounded", className)} {...props}>
+                {children}
+              </code>
+            );
+          },
+          img({ node, ...props }: any) {
+            return (
+              <div className="my-4 overflow-hidden rounded-lg border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
+                <img 
+                  {...props} 
+                  className="w-full h-auto object-cover transition-transform hover:scale-105 duration-300"
+                  loading="lazy"
+                  alt={props.alt || "Sri Lanka travel image"}
+                />
+                {props.alt && (
+                  <div className="bg-[#006A4E] text-[#FFF5E1] py-2 px-3 text-sm font-medium">
+                    {props.alt}
+                  </div>
+                )}
+              </div>
+            );
+          },
+          a({ node, ...props }: any) {
+            return (
+              <a 
+                {...props} 
+                className="text-[#006A4E] font-medium hover:text-[#D2691E] underline transition-colors duration-200"
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                {props.children}
+              </a>
+            );
+          },
+          ul({ node, ...props }: any) {
+            return <ul className="list-disc pl-6 space-y-2" {...props} />;
+          },
+          ol({ node, ...props }: any) {
+            return <ol className="list-decimal pl-6 space-y-2" {...props} />;
+          },
+          li({ node, ...props }: any) {
+            return <li className="marker:text-[#D2691E]" {...props} />;
+          },
+        }}
+      >
+        {children}
+      </ReactMarkdown>
+    </div>
   );
 };
 
@@ -42,11 +102,11 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
+    <div className="flex items-center justify-between gap-4 rounded-t-lg bg-[#006A4E] px-4 py-2 text-sm font-semibold text-[#FFF5E1]">
       <span className="lowercase [&>span]:text-xs">{language}</span>
       <TooltipIconButton tooltip="Copy" onClick={onCopy}>
-        {!isCopied && <CopyIcon />}
-        {isCopied && <CheckIcon />}
+        {!isCopied && <CopyIcon className="text-[#FFF5E1]" />}
+        {isCopied && <CheckIcon className="text-[#FFF5E1]" />}
       </TooltipIconButton>
     </div>
   );
@@ -204,7 +264,7 @@ const defaultComponents = memoizeMarkdownComponents({
   pre: ({ className, ...props }) => (
     <pre
       className={cn(
-        "overflow-x-auto rounded-b-lg bg-black p-4 text-white max-w-4xl",
+        "overflow-x-auto rounded-b-lg bg-[#FFF5E1] p-4 text-[#006A4E] max-w-4xl border-2 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]",
         className,
       )}
       {...props}
