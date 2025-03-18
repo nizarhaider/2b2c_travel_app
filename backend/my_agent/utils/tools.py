@@ -61,6 +61,9 @@ async def search_unsplash_photos(
         params = {
             "query": query,
             "orientation": "landscape",
+            "per_page": 10,
+            "page":10,
+            "order_by": "latest"
         }
 
         headers = {
@@ -311,16 +314,123 @@ async def tavily_web_search(
 
     response = await client.search(
         query=query,
+        search='advanced',
         max_results=configuration.max_search_results,
-        time_range='year'
+        time_range='year',
     )
     return response
 
+# async def tavily_url_extract(
+#     urls: str,
+#     config: Annotated[RunnableConfig, InjectedToolArg],
+# ) -> dict:
+#     """
+#     Extracts content from specified URLs using the Tavily extraction service.
+
+#     This function leverages the Tavily extraction API to retrieve and parse content from provided URLs.
+#     It's useful for obtaining detailed information from specific web pages when you already know 
+#     which sources you want to analyze, rather than performing a general search. The extraction process
+#     captures the main content while typically filtering out advertisements, navigation elements,
+#     and other non-essential page components.
+
+#     Parameters:
+#     - urls (list[str]): A list of URLs from which to extract content. Each URL should be a valid web address.
+#     - config (RunnableConfig): Configuration settings for the extraction process, which may include
+#       parameters like content filtering options or extraction depth.
+
+#     Returns:
+#     - dict: A dictionary containing the extracted content from each URL. The dictionary typically includes
+#       the raw text content, potentially some structured data depending on the page, and metadata about
+#       the extraction process. The exact structure depends on the Tavily API's response format.
+
+#     Example:
+#     >>> tavily_url_extract(["https://www.example.com/article", "https://www.example.com/blog-post"])
+#     {
+#         "extractions": [
+#             {
+#                 "url": "https://www.example.com/article",
+#                 "content": "This is the main content of the article...",
+#                 "title": "Example Article Title",
+#                 "metadata": { ... }
+#             },
+#             {
+#                 "url": "https://www.example.com/blog-post",
+#                 "content": "Content from the blog post...",
+#                 "title": "Blog Post Title",
+#                 "metadata": { ... }
+#             }
+#         ]
+#     }
+
+#     Notes:
+#     - The extraction focuses on the main content of each page and attempts to exclude irrelevant elements.
+#     - Content extraction quality may vary depending on the structure and complexity of the target websites.
+#     - This function is particularly useful for detailed analysis of specific sources rather than broad searches.
+#     - Rate limits or access restrictions on certain websites may affect the extraction results.
+#     """
+
+#     configuration = Configuration.from_runnable_config(config)
+
+#     response = await client.extract(
+#         urls=urls,
+#         extract_depth='advanced'
+#     )
+#     return response
+
+async def tavily_url_extract(
+        url: str,
+        config: Annotated[RunnableConfig, InjectedToolArg],
+        extract_depth: str = "advanced",
+) -> dict:
+    """
+    Extracts content from specified URL using the Tavily API.
+
+    This function sends a request to the Tavily content extraction API to retrieve
+    the text content from ONE URL.
+
+    Parameters:
+    - urls (str): A single url.
+    - include_images (bool): Whether to include images in the extraction. Defaults to False.
+    - extract_depth (str): The depth of extraction - "basic" or "full". Defaults to "basic".
+    - config (RunnableConfig): Configuration settings used to authenticate the API request.
+      This includes the API key for the Tavily API.
+
+    Returns:
+    - dict: The API response containing the extracted content from the specified URL.
+      
+    Example:
+    >>> tavily_url_extract(urls="https://en.wikipedia.org/wiki/Artificial_intelligence")
+    >>> tavily_url_extract(urls="https://example.com/page1,https://example.com/page2")
+
+    Notes:
+    - Basic extraction returns main content, while full extraction includes more detailed content.
+    - Be mindful of rate limits when making requests to the Tavily API.
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
+        
+
+        # Build request payload
+        payload = {
+            "urls": url,
+            "extract_depth": 'advanced'
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {configuration.tavily_api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        url = "https://api.tavily.com/extract"
+        
+        async with session.post(url, json=payload, headers=headers) as response:
+            response.raise_for_status()
+            return await response.json()
+        
 async def exa_web_search(query: str):
     """Search for webpages based on the query and retrieve their contents."""
     return exa.search_and_contents(
         query, use_autoprompt=True, num_results=10, text=True, highlights=True
     )
 
-tools: List[Callable[..., Any]] = [exa_web_search, tavily_web_search, query_google_places, search_unsplash_photos]
-# update_user_tool: List[Callable[..., Any]] = [update_user_profile]
+tools: List[Callable[..., Any]] = [exa_web_search, tavily_web_search, query_google_places, search_unsplash_photos, tavily_url_extract]
