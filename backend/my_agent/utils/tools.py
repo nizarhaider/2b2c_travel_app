@@ -20,9 +20,57 @@ from typing_extensions import Annotated
 
 from my_agent.utils.configuration import Configuration
 
-# exa = Exa(api_key=os.environ["EXA_API_KEY"])
+exa = Exa(api_key=os.environ["EXA_API_KEY"])
 client = AsyncTavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
+async def search_unsplash_photos(
+        query: str,
+        per_page: int,
+        config: Annotated[RunnableConfig, InjectedToolArg]
+) -> dict:
+    """
+    Searches for photos on Unsplash based on the provided query.
+
+    This function interacts with the Unsplash API to search for photos matching the query string.
+    It returns a collection of photo results with metadata.
+
+    Keep your searches SHORT AND MINIMAL
+
+    Parameters:
+    - query (str): The search terms to find photos.
+    - per_page (int) : Number of items in a page, ALWAYS LEAVE THE DEAFULTS to 10
+    - config (RunnableConfig): Configuration settings used to authenticate the API request. This 
+      includes the API key for the Unsplash API.
+
+    Returns:
+    - dict: The API response as a dictionary containing a list of photos with detailed information.
+      The data includes the photo ID, URLs, descriptions, user information, and additional metadata.
+      
+    Example:
+    >>> search_unsplash_photos(query="mountains", per_page=10)
+
+    Notes:
+    - Returns the first page of results with default sorting.
+    - Be mindful of rate limits when making requests to the Unsplash API.
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
+
+        # Build URL with query parameters
+        url = "https://api.unsplash.com/search/photos"
+        params = {
+            "query": query,
+            "orientation": "landscape",
+        }
+
+        headers = {
+            "Authorization": f"Client-ID {configuration.unsplash_api_key}",
+            "Accept-Version": "v1"
+        }
+        
+        async with session.get(url, headers=headers, params=params) as response:
+            response.raise_for_status()
+            return await response.json()
 
 async def query_google_places(
         query: str,
@@ -88,9 +136,140 @@ async def query_google_places(
             response.raise_for_status()
             return await response.json()         
 
-async def tavily_web_search(
+async def tripadvisor_location_search(
         query: str,
         config: Annotated[RunnableConfig, InjectedToolArg]
+) -> dict:
+    """
+    Queries the TripAdvisor API using a text-based search to find locations related to the provided query.
+
+    This function interacts with the TripAdvisor Location Search API and returns a list of locations 
+    matching the query string, along with additional details about each location. The API 
+    response contains information such as name, location ID, address, and other location-specific details.
+
+    Parameters:
+    - query (str): The search query, typically a name or description of a place or landmark.
+    - config (RunnableConfig): Configuration settings used to authenticate the API request. This 
+      includes the API key and other relevant parameters for the TripAdvisor API.
+
+    Returns:
+    - dict: The API response as a dictionary containing a list of locations with detailed information.
+      The data includes the location name, ID, address, and other metadata.
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
+        
+        base_url = "https://api.content.tripadvisor.com/api/v1/location/search"
+        params = {
+            "searchQuery": query,
+            "language": "en",
+            "key": configuration.tripadvisor_api_key
+        }
+        
+        headers = {
+            "accept": "application/json",
+            "Referer": "https://randomballs.com"
+        }
+
+        async with session.get(base_url, params=params, headers=headers) as response:
+            response.raise_for_status()
+            return await response.json()
+
+async def tripadvisor_location_details(
+        location_id: int,
+        config: Annotated[RunnableConfig, InjectedToolArg],
+        language: str = "en",
+        currency: str = "USD"
+) -> dict:
+    """
+    Gets detailed information about a specific TripAdvisor location.
+    
+    Retrieves comprehensive details for a hotel, restaurant, or attraction including name,
+    address, rating, reviews, and more from the TripAdvisor API.
+
+    Parameters:
+    - location_id (int): Unique TripAdvisor location identifier from Location Search
+    - config (RunnableConfig): Configuration with API authentication 
+    - language (str, optional): Results language code. Defaults to "en"
+    - currency (str, optional): Currency code (ISO 4217). Defaults to "USD"
+
+    Returns:
+    - dict: Complete location details including name, description, address, rating, etc.
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
+        
+        base_url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/details"
+        
+        params = {
+            "key": configuration.tripadvisor_api_key,
+            "language": language,
+            "currency": currency
+        }
+        
+        headers = {
+            "accept": "application/json",
+            "Referer": "https://randomballs.com"
+        }
+
+        async with session.get(base_url, params=params, headers=headers) as response:
+            response.raise_for_status()
+            return await response.json()
+
+async def tripadvisor_location_photos(
+        location_id: int,
+        config: Annotated[RunnableConfig, InjectedToolArg],
+        language: str = "en",
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        source: Optional[str] = None
+) -> dict:
+    """
+    Retrieves photos for a specific TripAdvisor location.
+    
+    Gets up to 5 high-quality photos for a location in multiple sizes (thumbnail to original).
+    Photos are ordered by recency.
+    
+    Parameters:
+    - location_id (int): Unique TripAdvisor location identifier
+    - config (RunnableConfig): Configuration with API authentication
+    - language (str, optional): Results language code. Defaults to "en"
+    - limit (int, optional): Number of results to return
+    - offset (int, optional): Index of first result
+    - source (str, optional): Comma-separated photo sources: 'Expert', 'Management', 'Traveler'
+    
+    Returns:
+    - dict: Photo data with URLs in various sizes and metadata
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
+        
+        base_url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/photos"
+        
+        params = {
+            "key": configuration.tripadvisor_api_key,
+            "language": language
+        }
+        
+        if limit is not None:
+            params["limit"] = limit
+        if offset is not None:
+            params["offset"] = offset
+        if source is not None:
+            params["source"] = source
+        
+        headers = {
+            "accept": "application/json",
+            "Referer": "https://randomballs.com"
+        }
+
+        async with session.get(base_url, params=params, headers=headers) as response:
+            response.raise_for_status()
+            return await response.json()       
+
+async def tavily_web_search(
+    query: str,
+    config: Annotated[RunnableConfig, InjectedToolArg]
 ) -> dict:
     """
     Performs a general web search using the Tavily search engine to retrieve trusted and comprehensive results.
@@ -132,182 +311,16 @@ async def tavily_web_search(
 
     response = await client.search(
         query=query,
-        include_images=True,
         max_results=configuration.max_search_results,
         time_range='year'
     )
     return response
 
-# async def tavily_web_search(
-#     query: str, *, config: Annotated[RunnableConfig, InjectedToolArg]
-# ) -> Optional[list[dict[str, Any]]]:
-#     """
-#     Performs a general web search using the Tavily search engine to retrieve trusted and comprehensive results.
+async def exa_web_search(query: str):
+    """Search for webpages based on the query and retrieve their contents."""
+    return exa.search_and_contents(
+        query, use_autoprompt=True, num_results=10, text=True, highlights=True
+    )
 
-#     This function utilizes the Tavily search engine, which is designed to provide highly relevant, 
-#     accurate, and up-to-date results, especially for queries related to current events, travel destinations, 
-#     or other frequently changing information. The results include articles, blog posts, and other web content 
-#     that match the search query.
-
-#     Parameters:
-#     - query (str): The search query string, which can be a question or a topic that the user wants to research.
-#     - config (RunnableConfig): Configuration settings for the search, including parameters like the 
-#       maximum number of results to fetch and other filters for refining the search.
-
-#     Returns:
-#     - Optional[list[dict[str, Any]]]: A list of dictionaries containing the search results. Each dictionary 
-#       represents a single result and may contain keys such as the title, snippet, URL, and other metadata for 
-#       each item. If no results are found, the function will return `None`.
-
-#     Example:
-#     >>> tavily_web_search("best family-friendly attractions in Sri Lanka")
-#     [
-#         {
-#             "title": "Top 10 Family-Friendly Attractions in Sri Lanka",
-#             "snippet": "Sri Lanka offers a variety of family-friendly attractions, from wildlife safaris to beach resorts.",
-#             "url": "https://www.example.com/family-friendly-attractions-sri-lanka",
-#             "source": "Travel Blog"
-#         },
-#         ...
-#     ]
-
-#     Notes:
-#     - The search results may include a mix of sources, such as blogs, news articles, and other online content.
-#     - The search engine is optimized for current, real-time information and highly relevant content.
-#     - The results are enriched with extra details such as snippets, URLs, and source information to help users find valuable resources.
-#     """  # noqa: D212, D401
-#     configuration = Configuration.from_runnable_config(config)
-#     wrapped = TavilySearchResults(max_results=configuration.max_search_results, include_images=True)
-#     result = await wrapped.ainvoke({"query": query})
-#     return cast(list[dict[str, Any]], result)
-
-
-# def exa_web_search(query: str):
-    # """Search for webpages based on the query and retrieve their contents."""
-    # return exa.search_and_contents(
-    #     query, use_autoprompt=True, num_results=10, text=True, highlights=True
-    # )
-
-# async def get_hotel_currencies(
-#         config: Annotated[RunnableConfig, InjectedToolArg],
-# ) -> dict:
-#     """
-#     Get available hotel currencies from this API 
-    
-#     Returns:
-#     --------
-#     dict
-#         JSON response containing currency code results.
-#     """  # noqa: D212, D415
-#     async with aiohttp.ClientSession() as session:
-#         configuration = Configuration.from_runnable_config(config)
-        
-#         url = "https://booking-com15.p.rapidapi.com/api/v1/meta/getCurrency"
-    
-#         headers = {
-#             "x-rapidapi-key": configuration.booking_api_key,
-#             "x-rapidapi-host": "booking-com15.p.rapidapi.com"
-#         }
-
-#         async with session.get(url, headers=headers) as response:
-#             response.raise_for_status()
-#             return await response.json()
-
-# async def get_hotel_location_id(
-#         location_query: str,
-#         config: Annotated[RunnableConfig, InjectedToolArg]
-# ) -> dict:
-#     """Use to get all hotel_location_ids based on location query."""
-#     async with aiohttp.ClientSession() as session:
-
-#         configuration = Configuration.from_runnable_config(config)
-
-#         url = "https://booking-com15.p.rapidapi.com/api/v1/hotels/searchDestination"
-
-#         querystring = {"query":{location_query}}
-
-#         headers = {
-#             "x-rapidapi-key": configuration.booking_api_key,
-#             "x-rapidapi-host": "booking-com15.p.rapidapi.com"
-#         }
-
-#         async with session.get(url, headers=headers, params=querystring) as response:
-#             response.raise_for_status()
-
-#             return await response.json() 
-
-# async def get_hotel_ids(
-#         config: Annotated[RunnableConfig, InjectedToolArg],
-#         dest_id: str,
-#         search_type: str,
-#         arrival_date: str,
-#         departure_date: str,
-#         adults: int = 1,
-#         children_ages: list[int] = None,
-#         room_qty: int = 1,
-#         currency_code: str = None
-# ) -> dict:
-#     """
-#     Get hotel search results based on location and search criteria.
-    
-#     Parameters:
-#     -----------
-#     config : RunnableConfig
-#         Configuration object containing API keys and settings.
-#     dest_id : str
-#         Destination ID retrieved from 'api/v1/hotels/searchDestination' endpoint.
-#     search_type : str
-#         Search type retrieved from 'api/v1/hotels/searchDestination' endpoint.
-#     arrival_date : str
-#         Check-in date in 'yyyy-mm-dd' format.
-#     departure_date : str
-#         Check-out date in 'yyyy-mm-dd' format.
-#     adults : int, optional
-#         Number of guests who are 18 years of age or older. Default is 1.
-#     children_age : list[int], optional
-#         List of ages for children under 18 years. For example: [0, 1, 17].
-#     room_qty : int, optional
-#         Number of rooms required. Default is 1.
-#     currency_code : str, optional
-#         Currency code for pricing. Can be retrieved from 'api/v1/meta/getCurrency' endpoint.
-        
-#     Returns:
-#     --------
-#     dict
-#         JSON response containing hotel search results.
-#     """  # noqa: D212
-#     async with aiohttp.ClientSession() as session:
-#         configuration = Configuration.from_runnable_config(config)
-        
-#         url = "https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels"
-        
-
-#         querystring = {
-#             "dest_id": dest_id,
-#             "search_type": search_type,
-#             "arrival_date": arrival_date,
-#             "departure_date": departure_date,
-#             "adults": adults,
-#             "room_qty": room_qty,
-#             "page_number": "1",
-#             "units": "metric",
-#             "temperature_unit": "c",
-#             "languagecode": "en-us",
-#         }
-        
-#         # Add optional parameters only if they are provided
-#         if children_ages:
-#             querystring["children_age"] = children_ages
-#         if currency_code:
-#             querystring["currency_code"] = currency_code
-
-#         headers = {
-#             "x-rapidapi-key": configuration.booking_api_key,
-#             "x-rapidapi-host": "booking-com15.p.rapidapi.com"
-#         }
-
-#         async with session.get(url, headers=headers, params=querystring) as response:
-#             response.raise_for_status()
-#             return await response.json()
-
-tools: List[Callable[..., Any]] = [tavily_web_search, query_google_places]
+tools: List[Callable[..., Any]] = [exa_web_search, tavily_web_search, query_google_places, search_unsplash_photos]
+# update_user_tool: List[Callable[..., Any]] = [update_user_profile]

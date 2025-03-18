@@ -1,52 +1,43 @@
 from typing import TypedDict, Literal
 
 from langgraph.graph import StateGraph, END
-from my_agent.utils.nodes import call_model, should_continue, tool_node
-from my_agent.utils.state import AgentState
+from my_agent.utils.nodes import research_itinerary, should_continue, tool_node, validate_user_response, update_user_profile, optimize_prompt, review_itinerary
+from my_agent.utils.state import InputState
 
 
 # Define the config
 class GraphConfig(TypedDict):
     model_name: Literal["anthropic", "openai"]
 
-
 # Define a new graph
-workflow = StateGraph(AgentState, config_schema=GraphConfig)
+workflow = StateGraph(InputState, config_schema=GraphConfig)
 
 # Define the two nodes we will cycle between
-workflow.add_node("agent", call_model)
-workflow.add_node("action", tool_node)
+workflow.add_node(validate_user_response)
+workflow.set_entry_point("validate_user_response")
 
-# Set the entrypoint as `agent`
-# This means that this node is the first one called
-workflow.set_entry_point("agent")
+workflow.add_node(update_user_profile)
+workflow.add_node(optimize_prompt)
+workflow.add_node(research_itinerary)
+workflow.add_node(review_itinerary)
+workflow.add_node("tool_node", tool_node)
+# workflow.add_node("user_tool_node", user_tool_node)
 
 # We now add a conditional edge
 workflow.add_conditional_edges(
-    # First, we define the start node. We use `agent`.
-    # This means these are the edges taken after the `agent` node is called.
-    "agent",
-    # Next, we pass in the function that will determine which node is called next.
+    "research_itinerary",
     should_continue,
-    # Finally we pass in a mapping.
-    # The keys are strings, and the values are other nodes.
-    # END is a special node marking that the graph should finish.
-    # What will happen is we will call `should_continue`, and then the output of that
-    # will be matched against the keys in this mapping.
-    # Based on which one it matches, that node will then be called.
     {
-        # If `tools`, then we call the tool node.
-        "continue": "action",
-        # Otherwise we finish.
-        "end": END,
+        "continue": "tool_node",
+        "end": "review_itinerary",
     },
 )
-
 # We now add a normal edge from `tools` to `agent`.
 # This means that after `tools` is called, `agent` node is called next.
-workflow.add_edge("action", "agent")
 
-# Finally, we compile it!
-# This compiles it into a LangChain Runnable,
-# meaning you can use it as you would any other runnable
+workflow.add_edge("update_user_profile", "optimize_prompt")
+workflow.add_edge("optimize_prompt", "research_itinerary")
+workflow.add_edge("tool_node", "research_itinerary")
+# workflow.add_edge("user_tool_node", "update_user_profile")
+
 graph = workflow.compile()
