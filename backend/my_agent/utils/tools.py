@@ -155,35 +155,10 @@ async def tripadvisor_location_search(
     Returns:
     - dict: The API response as a dictionary containing a list of locations with detailed information.
       The data includes the location name, ID, address, and other metadata.
-      
-    Example:
-    >>> tripadvisor_location_search("Colosseum Rome")
-    {
-        "data": [
-            {
-                "location_id": "191260",
-                "name": "Colosseum",
-                "address_obj": {
-                    "street1": "Piazza del Colosseo",
-                    "city": "Rome",
-                    "country": "Italy"
-                },
-                "latitude": "41.89021",
-                "longitude": "12.492231",
-                "category": {"key": "attraction", "name": "Attraction"}
-            },
-            ...
-        ]
-    }
-
-    Notes:
-    - The results are limited to a maximum of 10 locations per query.
-    - You can filter results by category using the category parameter ("hotels", "attractions", "restaurants", "geos").
     """
     async with aiohttp.ClientSession() as session:
         configuration = Configuration.from_runnable_config(config)
         
-        # Use proper URL formatting with query parameters
         base_url = "https://api.content.tripadvisor.com/api/v1/location/search"
         params = {
             "searchQuery": query,
@@ -191,9 +166,11 @@ async def tripadvisor_location_search(
             "key": configuration.tripadvisor_api_key
         }
         
-        headers = {"accept": "application/json"}
+        headers = {
+            "accept": "application/json",
+            "Referer": "https://randomballs.com"
+        }
 
-        # Use GET request instead of POST as specified in the documentation
         async with session.get(base_url, params=params, headers=headers) as response:
             response.raise_for_status()
             return await response.json()
@@ -222,17 +199,18 @@ async def tripadvisor_location_details(
     async with aiohttp.ClientSession() as session:
         configuration = Configuration.from_runnable_config(config)
         
-        # Build the URL with the location ID as a path parameter
         base_url = f"https://api.content.tripadvisor.com/api/v1/location/{location_id}/details"
         
-        # Set up query parameters
         params = {
             "key": configuration.tripadvisor_api_key,
             "language": language,
             "currency": currency
         }
         
-        headers = {"accept": "application/json"}
+        headers = {
+            "accept": "application/json",
+            "Referer": "https://randomballs.com"
+        }
 
         async with session.get(base_url, params=params, headers=headers) as response:
             response.raise_for_status()
@@ -280,11 +258,14 @@ async def tripadvisor_location_photos(
         if source is not None:
             params["source"] = source
         
-        headers = {"accept": "application/json"}
+        headers = {
+            "accept": "application/json",
+            "Referer": "https://randomballs.com"
+        }
 
         async with session.get(base_url, params=params, headers=headers) as response:
             response.raise_for_status()
-            return await response.json()     
+            return await response.json()       
 async def tavily_web_search(
     query: str,
     config: Annotated[RunnableConfig, InjectedToolArg]
@@ -329,7 +310,6 @@ async def tavily_web_search(
 
     response = await client.search(
         query=query,
-        include_images=True,
         max_results=configuration.max_search_results,
         time_range='year'
     )

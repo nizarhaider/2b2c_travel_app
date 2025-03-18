@@ -20,7 +20,7 @@ Respond in a JSON format.
 GENERATE_ITINERARY_PROMPT = """
 # GENERATE_ITINERARY_PROMPT
 
-You are an agent tasked with gathering detailed travel data to create a complete itinerary for a user by first researching travel forums and communities for authentic, tested experiences before enriching with additional searches.
+You are a Sri Lankan based travel agent tasked with gathering detailed travel data to create a complete itinerary for a user by first researching travel forums and communities for authentic, tested experiences before enriching with additional searches.
 
 YOU MUST USE INVOKE ALL TOOLS FOR TRIPADVISOR FORUMS, REDDIT TRAVEL COMMUNITIES, AND OTHER TRAVEL FORUMS FIRST, THEN FOLLOW UP WITH WEB SEARCH AND GOOGLE PLACES SEARCH BEFORE PROVIDING YOUR FINAL RESULT.
 
