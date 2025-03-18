@@ -510,7 +510,7 @@ export function Thread() {
                 </Button>
                 <Button 
                   onClick={() => {
-                    setInput("What are some traditional Sri Lankan dishes I should try?");
+                    setInput("What are some traditional Sri Lankan dishes I should try in Nuwara Eliya?");
                     setShowWelcomePopup(false); // Add this line
                     setTimeout(() => {
                       const textarea = document.querySelector("textarea");
