@@ -12,9 +12,10 @@ import { Fragment } from "react/jsx-runtime";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ThreadView } from "../agent-inbox";
 import { BooleanParam, useQueryParam } from "use-query-params";
-// import { Button } from "@/components/ui/button";
-// import { RefreshCw } from "lucide-react";
-// import { LoaderCircle } from "lucide-react";
+import { CopyIcon, RefreshCcw, CheckIcon } from "lucide-react";
+import { useState } from "react";
+import { Button } from "../../ui/button";
+import { TooltipIconButton } from "../tooltip-icon-button";
 
 function CustomComponent({   
   message,
@@ -76,6 +77,15 @@ export function AssistantMessage({
   isLoading: boolean;
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    if (typeof message.content === "string") {
+      navigator.clipboard.writeText(message.content);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
   const contentString = getContentString(message.content);
   const [hideToolCalls] = useQueryParam("hideToolCalls", BooleanParam);
 
@@ -118,7 +128,7 @@ export function AssistantMessage({
       ) : (
         <div className="flex flex-col gap-2">
           {contentString.length > 0 && (
-            <div className="py-1 px-4 bg-[#006A4E] text-[#FFF5E1] rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-none border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
+            <div className="py-1 px-4 bg-[#D2691E] text-[#FFF5E1] rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-none border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
               <div className="prose prose-invert max-w-none">
                 <MarkdownText>{contentString}</MarkdownText>
               </div>
@@ -141,6 +151,32 @@ export function AssistantMessage({
           {isAgentInboxInterruptSchema(interrupt?.value) && isLastMessage && (
             <ThreadView interrupt={interrupt.value[0]} />
           )}
+          
+          {/* Add explicit action buttons that are always visible */}
+          <div className="flex items-center gap-2 mt-1">
+            <TooltipIconButton
+              tooltip="Copy content"
+              onClick={copyToClipboard}
+              className="text-[#006A4E] hover:text-[#D2691E] transition-colors border-2 border-[#D2691E] bg-[#FFF5E1]"
+              variant="ghost"
+              size="sm"
+            >
+              {isCopied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
+            </TooltipIconButton>
+            
+            <TooltipIconButton
+              tooltip="Regenerate response"
+              onClick={() => handleRegenerate(parentCheckpoint)}
+              className="text-[#006A4E] hover:text-[#D2691E] transition-colors border-2 border-[#D2691E] bg-[#FFF5E1]"
+              variant="ghost"
+              size="sm"
+              disabled={isLoading}
+            >
+              <RefreshCcw className="size-4" />
+            </TooltipIconButton>
+          </div>
+          
+          {/* Keep the original CommandBar for backward compatibility */}
           <div
             className={cn(
               "flex gap-2 items-center mr-auto transition-opacity",

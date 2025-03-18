@@ -22,27 +22,43 @@ import {
 } from "lucide-react";
 import { BooleanParam, StringParam, useQueryParam } from "use-query-params";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
+// Add this import at the top of the file
 import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-// Sri Lankan-inspired logo component
+// Sri Lankan-inspired logo component with multilingual support
 function HiBowanLogo({ width = 32, height = 32, className }: {
   width?: number;
   height?: number;
   className?: string;
 }) {
   return (
-    <div className={cn("relative flex items-center justify-center", className)}>
-      <svg width={width} height={height} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="32" height="32" rx="6" fill="#D2691E" />
-        <path d="M8 8C12 12 20 12 24 8M8 24C12 20 20 20 24 24M16 8V24" stroke="#FFF5E1" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="16" cy="16" r="4" fill="#006A4E" stroke="#FFF5E1" strokeWidth="1" />
-      </svg>
-      <span className="ml-2 text-xl font-bold tracking-tight font-display text-primary">HiBowan</span>
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={cn("relative flex items-center justify-center cursor-pointer", className)}>
+            <svg width={width} height={height} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="6" fill="#D2691E" />
+              <path d="M8 8C12 12 20 12 24 8M8 24C12 20 20 20 24 24M16 8V24" stroke="#FFF5E1" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="16" cy="16" r="4" fill="#006A4E" stroke="#FFF5E1" strokeWidth="1" />
+            </svg>
+            <span className="ml-2 text-xl font-bold tracking-tight font-display text-[#006A4E]">Hiබෝවන්</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className="bg-[#FFF5E1] border-2 border-[#D2691E] text-[#006A4E] font-bold">
+          வணக்கம் - Hello
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -211,10 +227,16 @@ export function Thread() {
           }
         >
           <div className="relative h-full" style={{ width: 300 }}>
-            <div className="p-4 border-b-4 border-[#D2691E] flex items-center justify-center">
+            {/* <div className="p-4 border-b-4 border-[#D2691E] flex items-center justify-center">
               <h2 className="text-2xl font-bold font-display text-[#006A4E]">Chat History</h2>
-            </div>
+            </div> */}
+            {/* Replace Chat History with Thread History */}
             <ThreadHistory />
+            
+            {/* Main chat area */}
+            <div className="flex flex-col flex-1 h-full overflow-hidden">
+              {/* ... rest of your chat UI ... */}
+            </div>
           </div>
         </motion.div>
       </div>
@@ -348,7 +370,7 @@ export function Thread() {
                   <div className="flex gap-3 items-center">
                     <HiBowanLogo className="flex-shrink-0" width={48} height={48} />
                     <h1 className="text-3xl font-bold font-display text-[#006A4E]">
-                      HiBowan Travel Assistant
+                      Travel Assistant
                     </h1>
                   </div>
                 )}
@@ -425,9 +447,19 @@ export function Thread() {
                 </svg>
               </button>
               
-              <h1 className="text-4xl font-bold mb-6 text-[#D2691E] font-display text-center">
-                Welcome to HiBowan
-              </h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h1 className="text-4xl font-bold mb-6 text-[#D2691E] font-display text-center cursor-pointer">
+                      Hiබෝවන්!
+                    </h1>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-[#FFF5E1] border-2 border-[#D2691E] text-[#006A4E] font-bold">
+                    வணக்கம் - Hello
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
               <p className="text-xl mb-6 text-[#333] font-medium">
                 Your Sri Lankan travel companion. Ask me about:
               </p>

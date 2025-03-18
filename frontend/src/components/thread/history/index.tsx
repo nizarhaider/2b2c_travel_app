@@ -94,8 +94,12 @@ export default function ThreadHistory() {
 
   return (
     <>
+      {/* Modified to replace Chat History area */}
       <div className="hidden lg:flex flex-col border-r-[1px] border-slate-300 items-start justify-start gap-6 h-screen w-[300px] shrink-0 shadow-inner-right thread-history-container">
         <div className="flex items-center justify-between w-full pt-1.5 px-4 thread-history-header">
+          <h1 className="text-xl font-semibold tracking-tight text-[#006A4E] font-display">
+            Thread History
+          </h1>
           <Button
             className="hover:bg-[#D2691E]/20 text-[#006A4E] transition-colors duration-300"
             variant="ghost"
@@ -107,9 +111,6 @@ export default function ThreadHistory() {
               <PanelRightClose className="size-5" />
             )}
           </Button>
-          <h1 className="text-xl font-semibold tracking-tight text-[#006A4E] font-display">
-            Thread History
-          </h1>
         </div>
         {threadsLoading ? (
           <ThreadHistoryLoading />
@@ -117,6 +118,8 @@ export default function ThreadHistory() {
           <ThreadList threads={threads} />
         )}
       </div>
+      
+      {/* Mobile view */}
       <div className="lg:hidden">
         <Sheet
           open={!!chatHistoryOpen && !isLargeScreen}

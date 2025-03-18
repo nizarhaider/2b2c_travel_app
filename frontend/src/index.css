@@ -150,6 +150,7 @@
 
 /* Chat history styling */
 
+/* Update Chat History styling to Thread History */
 .chat-history-enter {
     opacity: 0;
     transform: translateX(-10px);
