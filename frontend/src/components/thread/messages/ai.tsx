@@ -128,7 +128,7 @@ export function AssistantMessage({
       ) : (
         <div className="flex flex-col gap-2">
           {contentString.length > 0 && (
-            <div className="py-1 px-4 bg-[#D2691E] text-[#FFF5E1] rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-none border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
+            <div className="py-1 px-4 bg-[#006A4E] text-[#FFF5E1] rounded-tl-lg rounded-tr-lg rounded-bl-lg rounded-br-none border-4 border-[#D2691E] shadow-[4px_4px_0px_0px_#000]">
               <div className="prose prose-invert max-w-none">
                 <MarkdownText>{contentString}</MarkdownText>
               </div>

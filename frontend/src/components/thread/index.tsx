@@ -36,22 +36,30 @@ import {
 } from "@/components/ui/tooltip";
 
 // Sri Lankan-inspired logo component with multilingual support
-function HiBowanLogo({ width = 32, height = 32, className }: {
+function HiBowanLogo({ width = 32, height = 32, className, isHeader = false }: {
   width?: number;
   height?: number;
   className?: string;
+  isHeader?: boolean;
 }) {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <div className={cn("relative flex items-center justify-center cursor-pointer", className)}>
-            <svg width={width} height={height} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="6" fill="#D2691E" />
-              <path d="M8 8C12 12 20 12 24 8M8 24C12 20 20 20 24 24M16 8V24" stroke="#FFF5E1" strokeWidth="2" strokeLinecap="round" />
-              <circle cx="16" cy="16" r="4" fill="#006A4E" stroke="#FFF5E1" strokeWidth="1" />
-            </svg>
-            <span className="ml-2 text-xl font-bold tracking-tight font-display text-[#006A4E]">Hiබෝවන්</span>
+            {isHeader && (
+              <motion.img 
+                src="/logo.svg" 
+                alt="Sri Lankan mask logo" 
+                width={width} 
+                height={height}
+                className="object-contain"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            )}
+            <span className="ml-2 text-xl font-bold tracking-tight font-display text-[#006A4E]">Hiබෝවන්!</span>
           </div>
         </TooltipTrigger>
         <TooltipContent className="bg-[#FFF5E1] border-2 border-[#D2691E] text-[#006A4E] font-bold">
@@ -301,10 +309,14 @@ export function Thread() {
                 )}
               </div>
               <motion.button
-                className="flex gap-2 items-center cursor-pointer"
+                className="flex items-center cursor-pointer"
                 onClick={() => setThreadId(null)}
+                style={{ 
+                  marginLeft: chatHistoryOpen ? '16px' : '56px',
+                  paddingLeft: '8px'
+                }}
                 animate={{
-                  marginLeft: !chatHistoryOpen ? 48 : 0,
+                  marginLeft: !chatHistoryOpen ? 56 : 16,
                 }}
                 transition={{
                   type: "spring",
@@ -312,7 +324,7 @@ export function Thread() {
                   damping: 30,
                 }}
               >
-                <HiBowanLogo width={40} height={40} />
+                <HiBowanLogo width={40} height={40} isHeader={true} />
               </motion.button>
             </div>
 
@@ -367,11 +379,8 @@ export function Thread() {
             footer={
               <div className="sticky flex flex-col items-center gap-8 bottom-0 px-4 bg-[#FFF5E1]">
                 {!chatStarted && (
-                  <div className="flex gap-3 items-center">
-                    <HiBowanLogo className="flex-shrink-0" width={48} height={48} />
-                    <h1 className="text-3xl font-bold font-display text-[#006A4E]">
-                      Travel Assistant
-                    </h1>
+                  <div className="flex gap-3 items-center justify-center py-6 mb-4">
+                    <HiBowanLogo className="flex-shrink-0" width={48} height={48} isHeader={false} />
                   </div>
                 )}
 
@@ -451,7 +460,7 @@ export function Thread() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <h1 className="text-4xl font-bold mb-6 text-[#D2691E] font-display text-center cursor-pointer">
-                      Hiබෝවන්!
+                    Hiබෝවන්!
                     </h1>
                   </TooltipTrigger>
                   <TooltipContent className="bg-[#FFF5E1] border-2 border-[#D2691E] text-[#006A4E] font-bold">

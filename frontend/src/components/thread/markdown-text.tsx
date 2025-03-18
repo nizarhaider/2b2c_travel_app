@@ -174,8 +174,8 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
   return (
     <div className={cn("prose dark:prose-invert max-w-none", className)}>
       {isItinerary ? (
-        <div className="py-4 px-6 bg-[#D2691E]/80 backdrop-blur-sm text-[#FFF5E1] rounded-xl border border-[#FFF5E1]/20 shadow-lg relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-[#D68060]/10 before:to-transparent before:opacity-30 before:z-0">
-          <div className="relative z-10">
+        <div className="py-3 px-4 bg-[#FFF5E1] text-[#1A3A5F] rounded-xl border border-[#D68060]/30 shadow-md">
+          <div className="relative">
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}
@@ -192,7 +192,7 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                       {String(children).replace(/\n$/, "")}
                     </SyntaxHighlighter>
                   ) : (
-                    <code className={cn("bg-[#FFF5E1] text-[#1A3A5F] px-1 py-0.5 rounded", className)} {...props}>
+                    <code className={cn("bg-[#D2691E]/10 text-[#1A3A5F] px-1 py-0.5 rounded", className)} {...props}>
                       {children}
                     </code>
                   );
@@ -218,7 +218,7 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                   return (
                     <a 
                       {...props} 
-                      className="text-[#D68060] font-medium hover:text-[#FFF5E1] underline transition-colors duration-200"
+                      className="text-[#D68060] font-medium hover:text-[#1A3A5F] underline transition-colors duration-200"
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
@@ -227,21 +227,21 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                   );
                 },
                 ul({ node, ...props }: any) {
-                  return <ul className="list-disc pl-6 space-y-2" {...props} />;
+                  return <ul className="list-disc pl-5 space-y-1 my-2" {...props} />;
                 },
                 ol({ node, ...props }: any) {
-                  return <ol className="list-decimal pl-6 space-y-2" {...props} />;
+                  return <ol className="list-decimal pl-5 space-y-1 my-2" {...props} />;
                 },
                 li({ node, ...props }: any) {
                   return (
-                    <li className="marker:text-[#D68060] mb-3 pl-2 border-l-2 border-[#FFF5E1] py-1 text-[#FFF5E1]" {...props} />
+                    <li className="marker:text-[#D68060] mb-2 pl-1 border-l-2 border-[#D68060]/30 py-0.5 text-[#1A3A5F]" {...props} />
                   );
                 },
                 h1({ node, ...props }: any) {
                   return (
                     <h1 
                       {...props} 
-                      className="text-3xl font-bold text-[#FFF5E1] border-b-4 border-[#D68060] pb-2 mb-6"
+                      className="text-2xl font-bold text-[#D68060] border-b-2 border-[#D68060]/30 pb-2 mb-4"
                     />
                   );
                 },
@@ -250,15 +250,15 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                   const isDayHeading = content.includes('Day');
                   
                   return (
-                    <div className="mt-8 mb-4">
+                    <div className="mt-6 mb-3">
                       <h2 
                         {...props} 
                         className={cn(
-                          "text-2xl font-semibold flex items-center gap-2 p-3 rounded-t-lg",
-                          isDayHeading ? "bg-[#FFF5E1] border-l-4 border-[#D68060] text-[#2A4858]" : "text-[#D68060]"
+                          "text-xl font-semibold flex items-center gap-2 p-2 rounded-t-lg",
+                          isDayHeading ? "bg-[#D68060]/20 border-l-4 border-[#D68060] text-[#1A3A5F]" : "text-[#D68060]"
                         )}
                       />
-                      {isDayHeading && <div className="h-1 bg-[#D68060] w-full opacity-30 rounded-b-lg mb-4"></div>}
+                      {isDayHeading && <div className="h-0.5 bg-[#D68060] w-full opacity-30 rounded-b-lg mb-3"></div>}
                     </div>
                   );
                 },
@@ -270,8 +270,8 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                     <h3 
                       {...props} 
                       className={cn(
-                        "text-xl font-medium mt-6 mb-3 flex items-center gap-2",
-                        isTimeHeading ? "text-[#2A4858] bg-[#FFF5E1] p-2 rounded-lg border-l-4 border-[#D68060] font-bold" : "text-[#FFF5E1]"
+                        "text-lg font-medium mt-4 mb-2 flex items-center gap-2",
+                        isTimeHeading ? "text-[#1A3A5F] bg-[#D68060]/10 p-1.5 rounded-lg border-l-3 border-[#D68060] font-bold" : "text-[#1A3A5F]"
                       )}
                     />
                   );
@@ -287,21 +287,21 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                   
                   if (hasCost) {
                     return (
-                      <div className="my-3 p-3 bg-[#FFF5E1] rounded-lg border-l-4 border-[#D68060] flex items-center">
-                        <DollarSignIcon className="text-[#D68060] mr-2 flex-shrink-0" size={18} />
-                        <p {...props} className="m-0 text-[#1A3A5F]" />
+                      <div className="my-2 p-2 bg-[#D68060]/10 rounded-lg border-l-4 border-[#D68060] flex items-center">
+                        <DollarSignIcon className="text-[#D68060] mr-2 flex-shrink-0" size={16} />
+                        <p {...props} className="m-0 text-[#1A3A5F] font-normal opacity-100" />
                       </div>
                     );
                   } else if (isPlace && content.length > 50) {
                     return (
-                      <div className="my-3 p-3 bg-[#FFF5E1] rounded-lg border-l-4 border-[#1A3A5F] flex items-start">
-                        <MapPinIcon className="text-[#1A3A5F] mr-2 mt-1 flex-shrink-0" size={18} />
-                        <p {...props} className="m-0 text-[#1A3A5F]" />
+                      <div className="my-2 p-2 bg-[#D68060]/5 rounded-lg border-l-4 border-[#1A3A5F] flex items-start">
+                        <MapPinIcon className="text-[#1A3A5F] mr-2 mt-1 flex-shrink-0" size={16} />
+                        <p {...props} className="m-0 text-[#1A3A5F] font-normal opacity-100" />
                       </div>
                     );
                   }
                   
-                  return <p {...props} className="my-2 text-[#FFF5E1]" />;
+                  return <p {...props} className="my-1.5 text-[#1A3A5F] font-normal opacity-100" />;
                 },
               }}
             >
