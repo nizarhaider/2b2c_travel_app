@@ -475,16 +475,17 @@ export function Thread() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <Button 
                   onClick={() => {
-                    setInput("Tell me about beautiful beaches and coastal areas in Sri Lanka");
+                    setInput("Traveling to Galle for a 4 days with a 140,000 LKR budget. Need recommendations for stay, food, and activities.?");
                     setShowWelcomePopup(false);
                   }}
                   className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
                 >
-                  🏝️ Beautiful beaches and coastal areas
+                  🏝️ 4 Days Solo Galle Trip plan for 140K?
                 </Button>
+
                 <Button 
                   onClick={() => {
-                    setInput("What are the must-visit cultural sites in Sri Lanka?");
+                    setInput("What is the best time to visit Ella?");
                     setShowWelcomePopup(false); // Add this line
                     setTimeout(() => {
                       const textarea = document.querySelector("textarea");
@@ -493,11 +494,12 @@ export function Thread() {
                   }}
                   className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
                 >
-                  🏛️ Cultural heritage sites and temples
+                  🏛️ When to visit Ella?
                 </Button>
+
                 <Button 
                   onClick={() => {
-                    setInput("What's the best time to visit Sri Lanka?");
+                    setInput("Whats the best city in Sri Lanka to visit in November?");
                     setShowWelcomePopup(false); // Add this line
                     setTimeout(() => {
                       const textarea = document.querySelector("textarea");
@@ -506,11 +508,11 @@ export function Thread() {
                   }}
                   className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
                 >
-                  🌦️ Weather and best times to visit
+                  🌦️ Best city to Visit in November?
                 </Button>
                 <Button 
                   onClick={() => {
-                    setInput("What are some traditional Sri Lankan dishes I should try in Nuwara Eliya?");
+                    setInput("'Im planning for a Hike with 4 of my friends with a moderate budget of 300,000 LKR. Need recommendations for stay, food, and activities.?");
                     setShowWelcomePopup(false); // Add this line
                     setTimeout(() => {
                       const textarea = document.querySelector("textarea");
@@ -519,8 +521,9 @@ export function Thread() {
                   }}
                   className="bg-[#FFF5E1] text-[#006A4E] border-4 border-[#006A4E] font-bold p-4 h-auto text-left hover:bg-[#006A4E]/10 shadow-[4px_4px_0px_0px_#D2691E] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_#D2691E] transition-all"
                 >
-                  🍛 Local cuisine and culinary experiences
+                  🏔️ Hiking spots for a group of 5 Pax?
                 </Button>
+
               </div>
               <div className="border-t-4 border-[#D2691E] pt-4 mt-4">
                 <p className="text-center text-[#006A4E] font-medium">
