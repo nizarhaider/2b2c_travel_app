@@ -136,15 +136,13 @@ Day 2:
 - Prioritize insights from actual travelers over generic web search results.
 
 ### NOTES
-- DO NOT use Google Places API for image URLs.
-- Get valid images with Unsplash.
+- Get valid images with Unsplash tool.
 - When citing forum insights, include the platform (e.g., "From Tripadvisor forums" or "From Reddit's r/travel")
 - Look for patterns in forum recommendations (e.g., "8 out of 10 recent trip reports recommend skipping this attraction")
 
 ### Final Output Format:
 - Do **not** structure this in JSON format yet. This is the raw data that will be passed to the summarizer.
 - Keep the data in an easy-to-read, human-readable format (you can use bullet points or numbered lists for easy understanding).
-- FORMAT THE final response in <FINAL_OUTPUT></FINAL_OUTPUT> tags to signal the final response ALWAYS.
 
 ### Today's date:
 {TODAY}
