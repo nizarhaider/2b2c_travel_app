@@ -70,6 +70,9 @@ const formatItinerary = (content: string): string => {
       // Transportation types in Sri Lanka
       { pattern: /Tuk Tuk/g, replacement: '🛺 Tuk Tuk' },
       { pattern: /Tuk-Tuk/g, replacement: '🛺 Tuk-Tuk' },
+      { pattern: /Tuk-Tuks/g, replacement: '🛺 Tuk-Tuk' },
+      { pattern: /Tuk-tuks/g, replacement: '🛺 Tuk-Tuk' },
+      { pattern: /Tuk-tuk/g, replacement: '🛺 Tuk-Tuk' },
       { pattern: /Train/g, replacement: '🚂 Train' },
       { pattern: /Bus/g, replacement: '🚌 Bus' },
       { pattern: /Taxi/g, replacement: '🚕 Taxi' },
@@ -241,7 +244,7 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                   return (
                     <h1 
                       {...props} 
-                      className="text-2xl font-bold text-[#D68060] border-b-2 border-[#D68060]/30 pb-2 mb-4"
+                      className="text-3xl font-bold text-[#D68060] border-b-2 border-[#D68060]/30 pb-2 mb-6 tracking-wide"
                     />
                   );
                 },
@@ -254,7 +257,7 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                       <h2 
                         {...props} 
                         className={cn(
-                          "text-xl font-semibold flex items-center gap-2 p-2 rounded-t-lg",
+                          "text-2xl font-semibold flex items-center gap-2 p-2 rounded-t-lg",
                           isDayHeading ? "bg-[#D68060]/20 border-l-4 border-[#D68060] text-[#1A3A5F]" : "text-[#D68060]"
                         )}
                       />
@@ -270,7 +273,7 @@ const MarkdownTextImpl = ({ children, className }: { children: string; className
                     <h3 
                       {...props} 
                       className={cn(
-                        "text-lg font-medium mt-4 mb-2 flex items-center gap-2",
+                        "text-xl font-medium mt-4 mb-2 flex items-center gap-2",
                         isTimeHeading ? "text-[#1A3A5F] bg-[#D68060]/10 p-1.5 rounded-lg border-l-3 border-[#D68060] font-bold" : "text-[#1A3A5F]"
                       )}
                     />
