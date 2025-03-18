@@ -23,54 +23,54 @@ from my_agent.utils.configuration import Configuration
 exa = Exa(api_key=os.environ["EXA_API_KEY"])
 client = AsyncTavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-# async def search_unsplash_photos(
-#         query: str,
-#         per_page: int,
-#         config: Annotated[RunnableConfig, InjectedToolArg]
-# ) -> dict:
-#     """
-#     Searches for photos on Unsplash based on the provided query.
+async def search_unsplash_photos(
+        query: str,
+        per_page: int,
+        config: Annotated[RunnableConfig, InjectedToolArg]
+) -> dict:
+    """
+    Searches for photos on Unsplash based on the provided query.
 
-#     This function interacts with the Unsplash API to search for photos matching the query string.
-#     It returns a collection of photo results with metadata.
+    This function interacts with the Unsplash API to search for photos matching the query string.
+    It returns a collection of photo results with metadata.
 
-#     Keep your searches SHORT AND MINIMAL
+    Keep your searches SHORT AND MINIMAL
 
-#     Parameters:
-#     - query (str): The search terms to find photos.
-#     - per_page (int) : Number of items in a page, ALWAYS LEAVE THE DEAFULTS to 10
-#     - config (RunnableConfig): Configuration settings used to authenticate the API request. This 
-#       includes the API key for the Unsplash API.
+    Parameters:
+    - query (str): The search terms to find photos.
+    - per_page (int) : Number of items in a page, ALWAYS LEAVE THE DEAFULTS to 10
+    - config (RunnableConfig): Configuration settings used to authenticate the API request. This 
+      includes the API key for the Unsplash API.
 
-#     Returns:
-#     - dict: The API response as a dictionary containing a list of photos with detailed information.
-#       The data includes the photo ID, URLs, descriptions, user information, and additional metadata.
+    Returns:
+    - dict: The API response as a dictionary containing a list of photos with detailed information.
+      The data includes the photo ID, URLs, descriptions, user information, and additional metadata.
       
-#     Example:
-#     >>> search_unsplash_photos(query="mountains", per_page=10)
+    Example:
+    >>> search_unsplash_photos(query="mountains", per_page=10)
 
-#     Notes:
-#     - Returns the first page of results with default sorting.
-#     - Be mindful of rate limits when making requests to the Unsplash API.
-#     """
-#     async with aiohttp.ClientSession() as session:
-#         configuration = Configuration.from_runnable_config(config)
+    Notes:
+    - Returns the first page of results with default sorting.
+    - Be mindful of rate limits when making requests to the Unsplash API.
+    """
+    async with aiohttp.ClientSession() as session:
+        configuration = Configuration.from_runnable_config(config)
 
-#         # Build URL with query parameters
-#         url = "https://api.unsplash.com/search/photos"
-#         params = {
-#             "query": query,
-#             "orientation": "landscape",
-#         }
+        # Build URL with query parameters
+        url = "https://api.unsplash.com/search/photos"
+        params = {
+            "query": query,
+            "orientation": "landscape",
+        }
 
-#         headers = {
-#             "Authorization": f"Client-ID {configuration.unsplash_api_key}",
-#             "Accept-Version": "v1"
-#         }
+        headers = {
+            "Authorization": f"Client-ID {configuration.unsplash_api_key}",
+            "Accept-Version": "v1"
+        }
         
-#         async with session.get(url, headers=headers, params=params) as response:
-#             response.raise_for_status()
-#             return await response.json()
+        async with session.get(url, headers=headers, params=params) as response:
+            response.raise_for_status()
+            return await response.json()
 
 async def query_google_places(
         query: str,
@@ -266,6 +266,7 @@ async def tripadvisor_location_photos(
         async with session.get(base_url, params=params, headers=headers) as response:
             response.raise_for_status()
             return await response.json()       
+
 async def tavily_web_search(
     query: str,
     config: Annotated[RunnableConfig, InjectedToolArg]
@@ -321,5 +322,5 @@ async def exa_web_search(query: str):
         query, use_autoprompt=True, num_results=10, text=True, highlights=True
     )
 
-tools: List[Callable[..., Any]] = [tavily_web_search, query_google_places, tripadvisor_location_search, tripadvisor_location_details, tripadvisor_location_photos]
+tools: List[Callable[..., Any]] = [exa_web_search, tavily_web_search, query_google_places, search_unsplash_photos]
 # update_user_tool: List[Callable[..., Any]] = [update_user_profile]
