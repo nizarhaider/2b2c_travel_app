@@ -11,6 +11,7 @@ GPLACES_API_KEY = os.getenv("GPLACES_API_KEY")
 UNSPLASH_API_KEY = os.getenv("UNSPLASH_API_KEY")
 RAPID_API_JEY = os.getenv("RAPID_API_JEY")
 TRIP_ADVISOR_API = os.getenv("TRIP_ADVISOR_API")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 
 
 @dataclass(kw_only=True)
@@ -35,6 +36,9 @@ class Configuration:
     )
     tripadvisor_api_key: str = field(
         default=UNSPLASH_API_KEY
+    )
+    tavily_api_key: str = field(
+        default=TAVILY_API_KEY
     )
     max_search_results: int = field(
         default=10,
